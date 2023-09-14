@@ -7,13 +7,13 @@ services:
     environment:
       - URL=https://extrafeatures.aledev.ru/
       - HOST=0.0.0.0
-      - PORT=5002
+      - PORT=5003
     volumes:
       - ./instance:/app/instance
     networks:
       - main
     ports:
-      - "5002:5002"
+      - "5003:5003"
   watchtower:
     image: containrrr/watchtower
     volumes:
