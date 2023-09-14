@@ -12,7 +12,7 @@ def user_loader(user_id):
 def login_required(func):
     @functools.wraps(func)
     def secure_function(*args, **kwargs):
-        if "username" not in session:
+        if "email" not in session:
             return redirect(url_for("login", next=request.url))
         return func(*args, **kwargs)
     return secure_function
@@ -21,10 +21,11 @@ def login_required(func):
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        user = User.query.get(form.username.data)
+        user = User.query.filter_by(email=form.email.data).first()
+        print(form.email.data)
         if user:
             if bcrypt.check_password_hash(user.password, form.password.data):
-                session["username"] = form.username.data
+                session["email"] = form.email.data
                 return redirect("/")
     return render_template("user_login.html", form=form)
 
@@ -32,9 +33,9 @@ def login():
 def register():
     form = CreateUserForm()
     if form.validate_on_submit():
-        username = request.form.get('username')
+        email = request.form.get('email')
         password = request.form.get('password')
-        user = User(username=username, password=bcrypt.generate_password_hash(password).decode('utf-8'))
+        user = User(email=email, password=bcrypt.generate_password_hash(password).decode('utf-8'))
         db.session.add(user)
         db.session.commit()
         return redirect("/")
@@ -42,10 +43,10 @@ def register():
 
 @app.route("/logout", methods=["GET"])
 def logout():
-    session.pop('username', None)
+    session.pop('email', None)
     return redirect(url_for('index'))
 
 @app.route('/')
 @login_required
 def index():
-    return render_template("index.html", title="Hello, world!")
+    return render_template("index.html", title="Главная страница")

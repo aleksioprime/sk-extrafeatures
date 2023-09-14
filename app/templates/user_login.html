@@ -18,8 +18,8 @@
           {{ form.csrf_token }}
           <h1 class="h3 mb-3 fw-normal">Вход в систему</h1>
           <div class="form-floating">
-            {{ form.username(class="form-control",  placeholder="Пользователь") }}
-            {{ form.username.label }}
+            {{ form.email(class="form-control",  placeholder="Email") }}
+            {{ form.email.label }}
           </div>
           {% for field, errors in form.errors.items() %}
               <small class="form-text text-muted ">
