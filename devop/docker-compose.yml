@@ -1,24 +1,24 @@
 version: "3.6"
 services:
-  gymnasium:
-    container_name: gymnasium
-    image: index.docker.io/aleksioprime/gymnasium
+  extrafeatures:
+    container_name: extrafeatures
+    image: index.docker.io/aleksioprime/extrafeatures
     command: python app.py
     environment:
-      - URL=https://gymnasium.aledev.ru/
+      - URL=https://extrafeatures.aledev.ru/
       - HOST=0.0.0.0
-      - PORT=5001
+      - PORT=5002
     volumes:
       - ./instance:/app/instance
     networks:
       - main
     ports:
-      - "5001:5001"
+      - "5002:5002"
   watchtower:
     image: containrrr/watchtower
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    command: --interval 30 --scope gymnasium
+    command: --interval 30 --scope extrafeatures
 networks:
   main:
     driver: bridge
