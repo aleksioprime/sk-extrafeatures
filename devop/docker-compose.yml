@@ -1,0 +1,24 @@
+version: "3.6"
+services:
+  gymnasium:
+    container_name: gymnasium
+    image: index.docker.io/aleksioprime/gymnasium
+    command: python app.py
+    environment:
+      - URL=https://gymnasium.aledev.ru/
+      - HOST=0.0.0.0
+      - PORT=5001
+    volumes:
+      - ./instance:/app/instance
+    networks:
+      - main
+    ports:
+      - "5001:5001"
+  watchtower:
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --interval 30 --scope gymnasium
+networks:
+  main:
+    driver: bridge
