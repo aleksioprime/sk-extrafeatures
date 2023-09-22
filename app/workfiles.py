@@ -95,6 +95,8 @@ def upload_codes():
     # print(json.loads(request.form['students'])[0])
     students = json.loads(request.form['students'])
     if file_codes:
+        if not os.path.exists('upload_files'):
+            os.mkdir('upload_files')
         file_name = os.path.join('upload_files', f"{session['email']}-{datetime.now()}-{file_codes.filename}")
         file_codes.save(file_name)
         # file_codes.seek(0)
@@ -142,6 +144,8 @@ def upload_codes():
 def upload_students():
     file_students = request.files['file_students']
     if file_students:
+        if not os.path.exists('upload_files'):
+            os.mkdir('upload_files')
         file_name = os.path.join('upload_files', f"{session['email']}-{datetime.now()}-{file_students.filename}")
         file_students.save(file_name)
         wb = load_workbook(filename=file_name, data_only=True, read_only=True)
