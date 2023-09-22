@@ -103,7 +103,7 @@
 
 {% block script %}
 <script>
-  const { createApp, ref, computed } = Vue
+  const { createApp, ref, computed } = Vue;
   // import { Modal } from 'bootstrap';
   createApp({
     setup() {
@@ -143,7 +143,7 @@
           subjects: subjects.value,
           grade: choicedGroup.value
         }
-        axios.post(`http://localhost:5000/download/codes`, data, config).then((response) => {
+        axios.post(`/download/codes`, data, config).then((response) => {
           console.log(response);
           resolveBlob(response);
         })
@@ -159,7 +159,7 @@
           grade: choicedGroup.value,
           school: schoolLogin.value,
         }
-        axios.post(`http://localhost:5000/download/student/codes`, data, config).then((response) => {
+        axios.post(`/download/student/codes`, data, config).then((response) => {
           console.log(response);
           resolveBlob(response);
         })
@@ -179,7 +179,7 @@
             'Content-Type': 'multipart/form-data'
           }
         }
-        axios.post(`http://localhost:5000/upload/codes`, formData, config).then((response) => {
+        axios.post(`upload/codes`, formData, config).then((response) => {
           // modalCodes.value.show()
           $('#modalCodes').modal('show')
           subjects.value = response.data.subjects
@@ -205,7 +205,7 @@
           }
         }
         isStudentLoading.value = true
-        axios.post(`http://localhost:5000/upload/students`, formData, config).then((response) => {
+        axios.post(`/upload/students`, formData, config).then((response) => {
           console.log(response);
           students.value = response.data.students
           groups.value = uniqueArray(students.value.map(item => item.class))

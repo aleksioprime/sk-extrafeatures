@@ -129,7 +129,7 @@
       };
       const getDataStudent = (id) => {
         student_marks.value = {};
-        axios.get(`http://localhost:5000/student/${student_id.value}/allmarks`).then((response) => {
+        axios.get(`/student/${student_id.value}/allmarks`).then((response) => {
           if (response.data.status == 'good') {
             student_marks.value = response.data;
           }
@@ -160,7 +160,7 @@
         const data = {
           data: student_marks.value
         }
-        axios.post(`http://localhost:5000/download/marks`, data, config).then((response) => {
+        axios.post(`/download/marks`, data, config).then((response) => {
           console.log(response);
           resolveBlob(response);
         })
@@ -188,7 +188,7 @@
         const data = {
           'token_dnevnik': objHash['access_token']
         };
-        axios.put(`http://localhost:5000/users/${this.user_id}`, data).then((response) => {
+        axios.put(`/users/${this.user_id}`, data).then((response) => {
           console.log(response.data);
           this.user = response.data;
         })
@@ -197,7 +197,7 @@
       }
       // Проверка существования токена доступа в Дневник.ру и удаление, если токен не актуален (нужно доделать)
       if (this.token_dnevnik) {
-        axios.get('http://localhost:5000/users/me').then((response) => {
+        axios.get('/users/me').then((response) => {
           this.currentUser = response.data;
           console.log(response.data);
         }).catch((error) => {
