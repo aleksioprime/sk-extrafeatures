@@ -53,7 +53,7 @@ def download_codes():
     buffer = BytesIO()
     wb_export.save(buffer)
     buffer.seek(0)
-    return send_file(buffer,  download_name=f'Codes for {data_grade} klass ({date.today()}).xlsx')
+    return send_file(buffer,  download_name=f'{data_grade} grade codes ({date.today()}).xlsx')
 
 @app.route('/download/student/codes', methods=["POST"])
 def download_student_codes():
@@ -87,7 +87,7 @@ def download_student_codes():
         os.remove(os.path.join(temp_path, f))
     os.rmdir(temp_path)
 
-    return send_file(memory_file,  download_name=f'Report {data_grade} ({date.today()}).zip')
+    return send_file(memory_file,  download_name=f'{data_grade} grade reports ({date.today()}).zip')
 
 @app.route('/upload/codes', methods=["POST"])
 def upload_codes():
@@ -95,7 +95,7 @@ def upload_codes():
     # print(json.loads(request.form['students'])[0])
     students = json.loads(request.form['students'])
     if file_codes:
-        file_name = os.path.join('upload_files', f"{session['email']}-{datetime.now()}-{file_students.filename}")
+        file_name = os.path.join('upload_files', f"{session['email']}-{datetime.now()}-{file_codes.filename}")
         file_codes.save(file_name)
         # file_codes.seek(0)
         # text_file = file_codes.read().decode('cp1251')
