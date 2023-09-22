@@ -63,9 +63,14 @@ def download_student_codes():
     data_school = json.loads(request.data)['school']
     print(data_subjects)
     
+    
+    if not os.path.exists(os.path.join('doc_templates', 'student_codes')):
+        os.mkdir(os.path.join('doc_templates', 'student_codes'))
+
     temp_path = os.path.join('doc_templates', 'student_codes', f"{data_grade}_class")
     if not os.path.exists(temp_path):
         os.mkdir(temp_path)
+        
     for data_student in data_codes:
         data_code_subjects = [{ 'name': subject['name'], 'date': subject['date'], 'code': data_student[subject['name']] } for subject in data_subjects]
         context = {
