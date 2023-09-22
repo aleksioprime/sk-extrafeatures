@@ -1,5 +1,5 @@
 from app import app, db, login_manager, bcrypt
-from flask import render_template, session, redirect, url_for, request, jsonify
+from flask import render_template, session, redirect, url_for, request
 import functools
 
 from .models import User
@@ -25,7 +25,9 @@ def login():
         print(form.email.data)
         if user:
             if bcrypt.check_password_hash(user.password, form.password.data):
-                session["email"] = form.email.data
+                session["email"] = user.email
+                session["id"] = user.id
+                session["username"] = f"{ user.first_name } { user.last_name }"
                 return redirect("/")
     return render_template("user_login.html", form=form)
 
@@ -33,9 +35,11 @@ def login():
 def register():
     form = CreateUserForm()
     if form.validate_on_submit():
-        email = request.form.get('email')
         password = request.form.get('password')
-        user = User(email=email, password=bcrypt.generate_password_hash(password).decode('utf-8'))
+        user = User(email=request.form.get('email'),
+                    password=bcrypt.generate_password_hash(password).decode('utf-8'),
+                    first_name=request.form.get('first_name'),
+                    last_name=request.form.get('last_name'))
         db.session.add(user)
         db.session.commit()
         return redirect("/")
@@ -50,3 +54,17 @@ def logout():
 @login_required
 def index():
     return render_template("index.html", title="Главная страница")
+
+@app.route('/dnevnik_reports')
+@login_required
+def dnevnik_reports():
+    user = User.query.filter_by(id=session["id"]).first()
+    return render_template("dnevnik_reports.html", title="Формирование выписки для студента", user = user)
+
+@app.route('/other_reports')
+@login_required
+def other_reports():
+    user = User.query.filter_by(id=session["id"]).first()
+    return render_template("other_reports.html", title="Формирование выписки для студента", user = user)
+
+

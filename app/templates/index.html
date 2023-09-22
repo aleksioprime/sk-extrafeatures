@@ -2,7 +2,24 @@
 
 {% block content %}
 <h2>{{ title }}</h2>
-
+<div class="card my-2">
+  <div class="card-header">
+    Отчёты из Дневник.ру
+  </div>
+  <div class="card-body">
+    <p class="card-text">Формирование отчётов из системы Дневник.ру</p>
+    <a href={{ url_for('dnevnik_reports') }} class="btn btn-primary">Перейти</a>
+  </div>
+</div>
+<div class="card my-2">
+  <div class="card-header">
+    Другие виды отчётов
+  </div>
+  <div class="card-body">
+    <p class="card-text">Формирование отчётов по другим условиям</p>
+    <a href={{ url_for('other_reports') }} class="btn btn-primary">Перейти</a>
+  </div>
+</div>
 {% endblock %}
 
 {% block script %}

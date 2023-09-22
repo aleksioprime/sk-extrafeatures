@@ -1,0 +1,33 @@
+.loader-wrapper {
+    display: flex;
+    height: 100px;
+    align-items: center;
+    justify-content: center;
+}
+
+.loader-simple {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background-color: #5C0F8B;
+    box-shadow: 32px 0 #5C0F8B, -32px 0 #5C0F8B;
+    position: relative;
+    animation: flash 0.5s ease-out infinite alternate;
+}
+
+@keyframes flash {
+    0% {
+        background-color: #FFF2;
+        box-shadow: 32px 0 #FFF2, -32px 0 #5C0F8B;
+    }
+
+    50% {
+        background-color: #5C0F8B;
+        box-shadow: 32px 0 #FFF2, -32px 0 #FFF2;
+    }
+
+    100% {
+        background-color: #5C0F8B;
+        box-shadow: 32px 0 #5C0F8B, -32px 0 #FFF2;
+    }
+}

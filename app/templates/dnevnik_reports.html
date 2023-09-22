@@ -1,0 +1,211 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div id="app">
+  <h2>Функции взаимодействия с сервисом Дневник.ру</h2>
+  <div class="row my-2">
+    <div class="col">
+      <ul class="list-group">
+        <li class="list-group-item">ID: {{ user.id }}</li>
+        <li class="list-group-item">First Name: {{ user.first_name }}</li>
+        <li class="list-group-item">Second Name: {{ user.last_name }}</li>
+        <li class="list-group-item">Email: {{ user.email }}</li>
+        <li class="list-group-item">Token Dnevnik.ru: {{ user.token_dnevnik }}</li>
+      </ul>
+    </div>
+    <div class="col">
+      <button class="btn btn-success" @click="getDataDnevnik" v-if="!currentUser.id">Авторизация в Дневник.ру</button>
+      <div v-else >
+        <div class="alert alert-success" role="alert">Авторизация в dnevnik.ru выполнена</div>
+        <div>Пользователь в Dnevnik.ru</div>
+        <table class="table table-sm">
+          <tr><th>Логин:</th><td>[[ currentUser.login ]]</td></tr>
+          <tr><th>Имя:</th><td>[[ currentUser.shortName ]]</td></tr>
+          <tr><th>Email:</th><td>[[ currentUser.email ]]</td></tr>
+          <tr><th>Телефон:</th><td>[[ currentUser.phone ]]</td></tr>
+          <tr><th>Дата рождения:</th><td>[[ currentUser.birthday ]]</td></tr>
+          <tr><th>ID:</th><td>[[ currentUser.id_str ]]</td></tr>
+          <tr><th>Person ID:</th><td>[[ currentUser.personId_str ]]</td></tr>
+        </table>
+      </div>
+    </div> 
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      Оценки студента
+    </div>
+    <div class="card-body">
+      <p class="card-text">Просмотр оценок студента и формирование выписки с итоговыми оценками за периоды</p>
+      <p class="card-text">Для продолжения введите ID студента и нажмите "Запрос"</p>
+      <div class="row">
+        <div class="col">
+          <input class="form-control" type="text" placeholder="Введите id студента" v-model="student_id">
+        </div>
+        <div class="col-auto">
+          <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop" @click="getDataStudent" :disabled="!student_id">Запрос</button>
+        </div>
+      </div> 
+    </div>
+  </div>
+
+  <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="staticBackdropLabel">Результат запроса</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div v-if="student_marks.student">
+            <div class="my-2">Данные студента в Dnevnik.ru</div>
+            <table class="table table-sm">
+              <tr><th>ID:</th><td>[[ student_marks.student.id_str ]]</td></tr>
+              <tr><th>Имя:</th><td>[[ student_marks.student.shortName ]]</td></tr>
+              <tr><th>Пол:</th><td>[[ student_marks.student.sex ]]</td></tr>
+              <tr><th>User ID:</th><td>[[ student_marks.student.userId_str ]]</td></tr>
+            </table>
+            <div class="my-2">Экспорт оценок</div>
+            <div class="border p-2">
+              <button class="btn btn-warning" @click="exportStudentMarksDocx">Экспорт оценок в docx</button>
+            </div>
+            <div class="my-2">Выгрузка оценок из Dnevnik.ru</div>
+            <div class="d-flex align-items-start">
+              <div class="nav flex-column nav-pills me-3" id="nav-tab" role="tablist">
+                <button class="nav-link" :class="{ active: index == 0}" :id=`nav-${group.id}-tab` data-bs-toggle="tab"
+                :data-bs-target=`#nav-${group.id}` type="button" role="tab" :aria-controls=`nav-${group.id}`
+                aria-selected="true" v-for="(group, index) in student_marks.groups" :key="group.id">[[ group.name ]] ([[ group.year ]] - [[ +group.year + 1]])</button>
+              </div>
+              <div class="tab-content flex-grow-1" id="nav-tabContent">
+                <div class="tab-pane fade" :class="{ 'active': index == 0, 'show': index == 0}" :id=`nav-${group.id}` role="tabpanel" 
+                :aria-labelledby=`nav-${group.id}-tab` tabindex="0" v-for="(group, index) in student_marks.groups" :key="group.id">
+                  <table class="table table-sm" v-if="Object.keys(group.marks).length">
+                    <tr v-for="marks, key in group.marks" :key="key"><th>[[ marks.subjectName ]]</th><td>[[ marks.mark ]]</td></tr>
+                  </table>
+                <div v-else class="alert alert-danger">Нет данных</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div v-else>Ожидайте</div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+  const { createApp, ref } = Vue
+  const CLIEND_ID = '3097117bc2af450db4de47abe50d22ba'
+  const SCHOOL = '1000013635121'
+  createApp({
+    setup() {
+      const message = window.location;
+      const user_id = {{ user.id }};
+      const currentUser = ref({});
+      let student_id = ref('1000014806800');
+      let student_marks = ref({});
+      const fileCodesInput = ref(null)
+      const token_dnevnik = {{ user.token_dnevnik|tojson }};
+      const getValueFromHash = (hash) => {
+        return  hash.split('&').reduce(function (res, item) {
+          var parts = item.split('=');
+          res[parts[0]] = parts[1];
+          return res;
+        }, {});
+      }
+      const getDataDnevnik = () => {
+        window.location.href = `https://login.dnevnik.ru/oauth2?response_type=token&client_id=${CLIEND_ID}&scope=CommonInfo,ContactInfo,EducationalInfo&redirect_uri=${window.location.href}&state=`;
+      };
+      const getDataStudent = (id) => {
+        student_marks.value = {};
+        axios.get(`http://localhost:5000/student/${student_id.value}/allmarks`).then((response) => {
+          if (response.data.status == 'good') {
+            student_marks.value = response.data;
+          }
+          console.log(response.data);
+        })
+      };
+      function resolveBlob(response) {
+        const headerval = response.headers['content-disposition'];
+        if (headerval != null) {
+          let filename = headerval.split(';')[1].split('=')[1].replace('"', '').replace('"', '');
+          filename = decodeURI(filename);
+          const url = window.URL.createObjectURL(new Blob([response.data]));
+          const link = document.createElement('a');
+          link.href = url;
+          link.setAttribute('download', filename);
+          document.body.appendChild(link);
+          link.click();
+          window.URL.revokeObjectURL(url);
+          link.remove();
+        } else {
+          handleKnownException(response);
+        }
+      };
+      const exportStudentMarksDocx = () => {
+        const config = {
+          responseType: 'blob',
+        }
+        const data = {
+          data: student_marks.value
+        }
+        axios.post(`http://localhost:5000/download/marks`, data, config).then((response) => {
+          console.log(response);
+          resolveBlob(response);
+        })
+      };
+      return {
+        message, 
+        getDataDnevnik, 
+        getValueFromHash, 
+        user_id, 
+        token_dnevnik, 
+        currentUser,
+        student_id,
+        getDataStudent,
+        student_marks,
+        exportStudentMarksDocx,
+        fileCodesInput
+      }
+    },
+    mounted() {
+      console.log(this.token_dnevnik)
+      let objHash = this.getValueFromHash(window.location.hash.slice(1))
+      // Проверка наличия токена в адресной строке и обновление токена, если у пользователя его нет или отличается от нового
+      if (typeof objHash['access_token'] !== "undefined" && this.token_dnevnik !== objHash['access_token']) {
+        console.log(`Обновление токена: ${objHash.access_token}`);
+        const data = {
+          'token_dnevnik': objHash['access_token']
+        };
+        axios.put(`http://localhost:5000/users/${this.user_id}`, data).then((response) => {
+          console.log(response.data);
+          this.user = response.data;
+        })
+      } else {
+        console.log(`Токен не обновлён`);
+      }
+      // Проверка существования токена доступа в Дневник.ру и удаление, если токен не актуален (нужно доделать)
+      if (this.token_dnevnik) {
+        axios.get('http://localhost:5000/users/me').then((response) => {
+          this.currentUser = response.data;
+          console.log(response.data);
+        }).catch((error) => {
+          console.log(response.error);
+        }) 
+      }
+    },
+    delimiters: ['[[',']]']
+  }).mount('#app')
+</script>
+{% endblock %}
